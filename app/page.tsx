@@ -21,7 +21,7 @@ export default async function Home() {
 					</p>
 					<p className="col-start-8 text-right">YTD</p>
 					<p className="col-start-10 text-right">
-						{metersToMiles(stats.miles)}mi
+						{metersToMiles(stats.miles).toFixed(2)}mi
 					</p>
 					<p className="col-start-12 text-right">{stats.count} runs</p>
 				</div>
