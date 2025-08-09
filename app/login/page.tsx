@@ -5,7 +5,7 @@ export default function StravaLogin() {
 	const origin =
 		typeof window !== "undefined"
 			? window.location.origin
-			: `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`; // fallback for SSR
+			: `https://${process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL}`; // fallback for SSR
 
 	const redirectUri = new URL("/strava/callback", origin).toString();
 	const scope = "read,activity:read_all";
