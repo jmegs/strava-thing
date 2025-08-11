@@ -26,7 +26,7 @@ const { data: runs } = await useFetch("/api/list");
 				/>
 				<p class="md:col-span-3 pr-2 md:pr-0">{{ run.name }}</p>
 				<p class="hidden md:block col-span-2 md:text-right">
-					{{ run.start_date_local }}
+					{{ new Date(run.start_date_local).toISOString().split("T")[0] }}
 				</p>
 				<p class="md:col-span-2 md:text-right">
 					{{ metersToMiles(run.distance).toFixed(2) }}mi
