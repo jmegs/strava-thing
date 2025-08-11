@@ -11,7 +11,6 @@ const getData = async () => {
 	const run = await $fetch(`/api/run/${props.activityId}`);
 	text.value = JSON.stringify(run, null, 2);
 
-	console.log("run data", text.value);
 	await copy(text.value);
 };
 </script>

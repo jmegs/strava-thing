@@ -10,9 +10,9 @@ const { data: runs } = await useFetch("/api/list");
 				anima sana in corpore sano
 			</p>
 			<p class="col-span-2 md:text-right">
-				{{ metersToMiles(stats.miles).toFixed(2) }} mi
+				{{ metersToMiles(stats?.miles || 0).toFixed(2) }} mi
 			</p>
-			<p class="col-span-2 md:text-right">{{ stats.count }} runs</p>
+			<p class="col-span-2 md:text-right">{{ stats?.count || 0 }} runs</p>
 		</header>
 		<ul class="divide-y border-t mt-[50svh]">
 			<li
@@ -25,7 +25,9 @@ const { data: runs } = await useFetch("/api/list");
 					class="hidden md:block col-span-1"
 				/>
 				<p class="md:col-span-3 pr-2 md:pr-0">{{ run.name }}</p>
-				<p class="hidden md:block col-span-2 md:text-right">{{ run.date }}</p>
+				<p class="hidden md:block col-span-2 md:text-right">
+					{{ run.start_date_local }}
+				</p>
 				<p class="md:col-span-2 md:text-right">
 					{{ metersToMiles(run.distance).toFixed(2) }}mi
 				</p>
