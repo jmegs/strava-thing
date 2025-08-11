@@ -16,6 +16,7 @@ export default defineEventHandler(async (event) => {
 	});
 
 	setCookie(event, "strava_refresh_token", res.refresh_token, {
+		httpOnly: true,
 		path: "/",
 		secure: process.env.NODE_ENV === "production",
 		maxAge: 60 * 60 * 24 * 365,

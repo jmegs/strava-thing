@@ -1,8 +1,4 @@
 <script setup lang="ts">
-definePageMeta({
-	middleware: ["auth"],
-});
-
 const { data: stats } = await useFetch("/api/stats");
 const { data: runs } = await useFetch("/api/list");
 </script>

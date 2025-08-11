@@ -25,6 +25,7 @@ export async function requireStravaClient(event: H3Event) {
 				cached = token;
 				if (token.refresh_token && token.refresh_token !== refresh) {
 					setCookie(event, "strava_refresh_token", token.refresh_token, {
+						httpOnly: true,
 						maxAge: 60 * 60 * 24 * 365,
 						sameSite: "lax",
 						secure: process.env.NODE_ENV === "production",
