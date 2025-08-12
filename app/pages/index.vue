@@ -29,7 +29,7 @@ import { getWorkoutTypeTag } from "#shared/utils/formatters";
 					<span>{{ run.name }}</span>
 					<span
 						v-if="getWorkoutTypeTag(run.workout_type)"
-						class="ml-2 px-1 py-0.5 text-[9px] uppercase tracking-wide bg-gray-200"
+						class="ml-2 px-1 py-0.5 text-[9px] uppercase tracking-wide border"
 					>
 						{{ getWorkoutTypeTag(run.workout_type) }}
 					</span>

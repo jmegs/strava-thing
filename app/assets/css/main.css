@@ -3,3 +3,20 @@
 @theme {
 	--font-mono: "TX-02", ui-monospace, monospace;
 }
+
+body {
+	background-color: var(--color-stone-50);
+	color: var(--color-stone-950);
+}
+
+@media (prefers-color-scheme: dark) {
+	body {
+		background-color: var(--color-stone-900);
+		color: var(--color-stone-300);
+	}
+
+	::selection {
+		background-color: var(--color-stone-200);
+		color: var(--color-stone-950);
+	}
+}

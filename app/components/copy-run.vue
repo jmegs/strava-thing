@@ -18,7 +18,7 @@ const getData = async () => {
 <template>
 	<button
 		@click="getData()"
-		class="rounded px-2 py-1 text-xs border hover:bg-gray-100 disabled:opacity-50 tracking-wide"
+		class="rounded px-2 py-0.5 text-xs border disabled:opacity-50 hover:opacity-80 hover:cursor-pointer tracking-wide"
 	>
 		<span v-if="!copied">COPY</span>
 		<span v-else>Copied</span>
