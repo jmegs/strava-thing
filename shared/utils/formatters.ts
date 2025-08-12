@@ -30,3 +30,9 @@ export function metersToFeet(meters: number) {
 export function round2Decimals(num: number) {
 	return Math.round(num * 100) / 100;
 }
+
+export function getWorkoutTypeTag(workoutType: number | null | undefined) {
+	if (workoutType === 2) return "long run";
+	if (workoutType === 3) return "workout";
+	return null; // 0 or any other value returns null (no tag)
+}

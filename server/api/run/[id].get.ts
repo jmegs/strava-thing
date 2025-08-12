@@ -30,6 +30,7 @@ export default defineEventHandler(async (event) => {
 		max_hr: act.max_heartrate,
 		elev_gain_ft: round2Decimals(metersToFeet(act.total_elevation_gain)),
 		route_start_latlng: act.start_latlng,
+		workout_type_tag: getWorkoutTypeTag(act.workout_type),
 		splits: act.splits_standard.map((split) => ({
 			split: split.split,
 			distance_mi: round2Decimals(metersToMiles(split.distance)),

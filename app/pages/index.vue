@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const { data: stats } = await useFetch("/api/stats");
 const { data: runs } = await useFetch("/api/list");
+import { getWorkoutTypeTag } from "#shared/utils/formatters";
 </script>
 
 <template>
@@ -24,7 +25,15 @@ const { data: runs } = await useFetch("/api/list");
 					:summary="run.map.summary_polyline"
 					class="hidden md:block col-span-1"
 				/>
-				<p class="md:col-span-3 pr-2 md:pr-0">{{ run.name }}</p>
+				<p class="md:col-span-3 pr-2 md:pr-0">
+					<span>{{ run.name }}</span>
+					<span
+						v-if="getWorkoutTypeTag(run.workout_type)"
+						class="ml-2 px-1 py-0.5 text-[9px] uppercase tracking-wide bg-gray-200"
+					>
+						{{ getWorkoutTypeTag(run.workout_type) }}
+					</span>
+				</p>
 				<p class="hidden md:block col-span-2 md:text-right">
 					{{ new Date(run.start_date_local).toISOString().split("T")[0] }}
 				</p>
