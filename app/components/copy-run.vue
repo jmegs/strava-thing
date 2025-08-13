@@ -40,7 +40,7 @@ const handleClick = () => {
 <template>
 	<button
 		@click="handleClick()"
-		class="rounded px-2 py-0.5 text-xs border disabled:opacity-50 hover:opacity-80 hover:cursor-pointer tracking-wide"
+		class="px-2 py-0.5 inline-grid place-items-center text-xs border disabled:opacity-50 hover:opacity-80 hover:cursor-pointer tracking-wide"
 	>
 		<span v-if="!copied">COPY</span>
 		<span v-else>Copied</span>
