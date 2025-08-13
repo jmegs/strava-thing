@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
 			act.moving_time / metersToMiles(act.distance),
 		),
 		avg_hr: Math.round(act.average_heartrate),
-		cadence_spm: round2Decimals(act.average_cadence),
+		cadence_spm: round2Decimals(act.average_cadence * 2),
 		max_hr: act.max_heartrate,
 		elev_gain_ft: round2Decimals(metersToFeet(act.total_elevation_gain)),
 		route_start_latlng: act.start_latlng,
