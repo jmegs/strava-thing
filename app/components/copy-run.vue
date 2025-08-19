@@ -43,6 +43,6 @@ const handleClick = () => {
 		class="px-2 py-0.5 inline-grid place-items-center text-xs border disabled:opacity-50 hover:opacity-80 hover:cursor-pointer tracking-wide"
 	>
 		<span v-if="!copied">COPY</span>
-		<span v-else>Copied</span>
+		<span v-else class="animate-pulse">••••</span>
 	</button>
 </template>
