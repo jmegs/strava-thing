@@ -47,6 +47,7 @@ export default defineEventHandler(async (event) => {
 		rpe: act.perceived_exertion || null,
 		shoes: act.gear?.name,
 		notes: act.description,
+		private_notes: act.private_note || null,
 		weather,
 	};
 });
