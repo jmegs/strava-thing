@@ -1,20 +1,25 @@
+"use server";
+
+import {
+	round2Decimals,
+	metersToMiles,
+	metersPerSecondToMinPerMile,
+	metersToFeet,
+	getWorkoutTypeTag,
+} from "./formatters";
+import { requireStravaClient } from "./strava";
+import { OpenMeteoResponse } from "./types";
 import type { Lap, DetailedActivity } from "strava";
 
-export default defineEventHandler(async (event) => {
-	const id = getRouterParam(event, "id");
-	const client = await requireStravaClient(event);
+export async function fetchRun(formData: FormData) {
+	const id = formData.get("id");
+	const client = await requireStravaClient();
 	const act = await client.activities.getActivityById({ id: Number(id) });
 
 	const [lat, lng] = act.start_latlng;
 	const isoUTC = act.start_date;
 
-	const weather = await $fetch("/api/weather", {
-		params: {
-			lat,
-			lng,
-			isoUTC,
-		},
-	});
+	const weather = await fetchWeather(lat, lng, isoUTC);
 
 	return {
 		name: act.name,
@@ -50,7 +55,7 @@ export default defineEventHandler(async (event) => {
 		private_notes: act.private_note || null,
 		weather,
 	};
-});
+}
 
 function isWorkout(act: DetailedActivity) {
 	return getWorkoutTypeTag(act.workout_type) === "workout";
@@ -71,4 +76,43 @@ function buildLapArray(act: DetailedActivity) {
 		max_hr: Math.round(lap.max_heartrate),
 		elev_gain_ft: round2Decimals(metersToFeet(lap.total_elevation_gain)),
 	}));
+}
+
+async function fetchWeather(lat: number, lng: number, isoUTC: string) {
+	const when = new Date(isoUTC as string);
+	const y = when.getUTCFullYear();
+	const m = String(when.getUTCMonth() + 1).padStart(2, "0");
+	const d = String(when.getUTCDate()).padStart(2, "0");
+	const dateStr = `${y}-${m}-${d}`;
+	const hourStr = String(isoUTC).slice(0, 13) + ":00";
+
+	const query = new URLSearchParams({
+		latitude: String(lat),
+		longitude: String(lng),
+		hourly: "temperature_2m,dewpoint_2m,wind_speed_10m",
+		temperature_unit: "fahrenheit",
+		wind_speed_unit: "mph",
+		timezone: "UTC",
+		start_date: dateStr,
+		end_date: dateStr,
+	});
+
+	const res: OpenMeteoResponse = await fetch(
+		`https://api.open-meteo.com/v1/forecast?${query.toString()}`,
+	).then((res) => res.json());
+
+	const times: string[] = res?.hourly?.time ?? [];
+	const idx = times.indexOf(hourStr);
+	if (idx === -1) return { temp_f: null, dewpoint_f: null, wind_mph: null };
+
+	return {
+		temp_f: num(res?.hourly?.temperature_2m[idx]),
+		dewpoint_f: num(res?.hourly?.dewpoint_2m[idx]),
+		wind_mph: num(res?.hourly?.wind_speed_10m[idx]),
+	};
+}
+
+function num(x: unknown): number | null {
+	const n = typeof x === "number" ? x : Number(x);
+	return Number.isFinite(n) ? n : null;
 }
