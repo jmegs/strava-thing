@@ -10,6 +10,9 @@
 	"observability": {
 		"enabled": true
 	},
+	"routes": [
+		{ "pattern": "strava.john.zone", "custom_domain": true }
+	],
 	"kv_namespaces": [
 		{
 			"binding": "SESSIONS",
