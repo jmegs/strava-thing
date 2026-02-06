@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+@font-face {
+	font-family: "TX-02";
+	src: url("/TX-02.woff2") format("woff2");
+	font-display: swap;
+}
+
+@theme {
+	--font-mono: "TX-02", "TX-02 fallback";
+}
+
+:root {
+	--li-scroll-margin: calc(50dvh + var(--spacing) * 14);
+	color-scheme: light dark;
+}
