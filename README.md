@@ -1,22 +1,38 @@
-# RedwoodSDK Minimal Starter
+# Strava Thing
 
-This is the starter project for RedwoodSDK. It's a template designed to get you up and running as quickly as possible.
+## Set up
+Create a new [Strava API application](https://www.strava.com/settings/api)
 
-Create your new project:
+Then in `.dev.vars`
+```
+STRAVA_CLIENT_ID=<client_id>
+STRAVA_CLIENT_SECRET=<client_secret>
 
-```shell
-npx create-rwsdk my-project-name
-cd my-project-name
-npm install
+// e.g. openssl rand -hex 32
+AUTH_SECRET_KEY=<random_string>
 ```
 
-## Running the dev server
+## Development
+rwsdk emulates cloudflare in development automatically with vite environments
 
 ```shell
-npm run dev
+pnpm run dev
 ```
 
-Point your browser to the URL displayed in the terminal (e.g. `http://localhost:5173/`). You should see the RedwoodSDK welcome page in your browser.
+## Deploying
+1. Change the name of the worker and optionally the domain in `wrangler.jsonc`
+
+2. Add secrets to prod
+```shell
+pnpm wrangler secrets put STRAVA_CLIENT_ID
+pnpm wrangler secrets put STRAVA_CLIENT_SECRET
+pnpm wrangler secrets put AUTH_SECRET_KEY
+```
+
+3. Then deploy
+```shell
+pnpm run release
+```
 
 ## Further Reading
 

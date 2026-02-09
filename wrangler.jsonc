@@ -1,22 +1,23 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "strava-thing",
+	"name": "strava-thing", // worker name, also *.workers.dev subdomain
 	"main": "src/worker.tsx",
 	"compatibility_date": "2025-08-21",
 	"compatibility_flags": ["nodejs_compat"],
 	"assets": {
-		"binding": "ASSETS"
+		"binding": "ASSETS",
 	},
 	"observability": {
-		"enabled": true
+		"enabled": true,
 	},
 	"routes": [
-		{ "pattern": "strava.john.zone", "custom_domain": true }
+		// custom domain if you have one on CF
+		{ "pattern": "strava.john.zone", "custom_domain": true },
 	],
 	"kv_namespaces": [
 		{
 			"binding": "SESSIONS",
-			"id": "b2409f0c1a6e44fb875bcca3a9e32910"
-		}
-	]
+			"id": "b2409f0c1a6e44fb875bcca3a9e32910",
+		},
+	],
 }
