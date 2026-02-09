@@ -22,14 +22,19 @@ pnpm run dev
 ## Deploying
 1. Change the name of the worker and optionally the domain in `wrangler.jsonc`
 
-2. Add secrets to prod
+2. Create a KV namespace for sessions and update the `id` in `wrangler.jsonc`
+```shell
+pnpm wrangler kv namespace create SESSIONS
+```
+
+3. Add secrets to prod
 ```shell
 pnpm wrangler secrets put STRAVA_CLIENT_ID
 pnpm wrangler secrets put STRAVA_CLIENT_SECRET
 pnpm wrangler secrets put AUTH_SECRET_KEY
 ```
 
-3. Then deploy
+4. Then deploy
 ```shell
 pnpm run release
 ```
