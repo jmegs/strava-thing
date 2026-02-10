@@ -10,6 +10,7 @@ import { HomePage } from "@/app/pages/HomePage"
 import { sessions } from "@/server/session"
 import { createStravaClient } from "@/server/strava"
 import { getWeather } from "@/server/weather"
+import { handleMcp } from "@/server/mcp"
 import {
 	mToMi,
 	mToFt,
@@ -115,6 +116,17 @@ const handleStravaCallback = async ({
 			refreshToken: tokens.refresh_token,
 		})
 
+		await env.SESSIONS.put(
+			"mcp-tokens",
+			JSON.stringify({
+				athleteId: tokens.athlete.id,
+				accessToken: tokens.access_token,
+				expiresAt: tokens.expires_at,
+				refreshToken: tokens.refresh_token,
+			}),
+			{ expirationTtl: 30 * 24 * 60 * 60 },
+		)
+
 		headers.set("Location", "/")
 		return new Response(null, { status: 302, headers })
 	} catch (e) {
@@ -156,8 +168,7 @@ const handleRunDetail = async ({
 
 	const [lat, lng] = act.start_latlng ?? [null, null]
 	const isoUTC = act.start_date
-	const weather =
-		lat && lng ? await getWeather({ lat, lng, isoUTC }) : null
+	const weather = lat && lng ? await getWeather({ lat, lng, isoUTC }) : null
 
 	return Response.json({
 		name: act.name,
@@ -206,6 +217,7 @@ const handleRunDetail = async ({
 
 export default defineApp([
 	setCommonHeaders(),
+	route("/mcp", handleMcp),
 	async ({ ctx, request }) => {
 		try {
 			ctx.session = await sessions.load(request)
