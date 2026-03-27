@@ -1,11 +1,17 @@
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
+
+type CopyStatus = "idle" | "copying" | "copied"
 
 export function useCopyRun() {
-	const [copying, setCopying] = useState(false)
-	const [copied, setCopied] = useState(false)
+	const [status, setStatus] = useState<CopyStatus>("idle")
+	const timerRef = useRef<ReturnType<typeof setTimeout>>()
+
+	useEffect(() => {
+		return () => clearTimeout(timerRef.current)
+	}, [])
 
 	const copyRun = async (id: number) => {
-		setCopying(true)
+		setStatus("copying")
 
 		try {
 			const text = new ClipboardItem({
@@ -18,11 +24,10 @@ export function useCopyRun() {
 		} catch (e) {
 			console.error("Failed to copy: ", e)
 		} finally {
-			setCopying(false)
-			setCopied(true)
-			setTimeout(() => setCopied(false), 1000)
+			setStatus("copied")
+			timerRef.current = setTimeout(() => setStatus("idle"), 1000)
 		}
 	}
 
-	return { copying, copied, copyRun }
+	return { copying: status === "copying", copied: status === "copied", copyRun }
 }

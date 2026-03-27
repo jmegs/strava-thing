@@ -7,19 +7,11 @@ import { Document } from "@/app/Document"
 import { setCommonHeaders } from "@/app/headers"
 import { LoginPage } from "@/app/pages/LoginPage"
 import { HomePage } from "@/app/pages/HomePage"
-import { sessions } from "@/server/session"
+import { sessions, THIRTY_DAYS, MCP_TOKENS_KEY } from "@/server/session"
 import { createStravaClient } from "@/server/strava"
 import { getWeather } from "@/server/weather"
 import { handleMcp } from "@/server/mcp"
-import {
-	mToMi,
-	mToFt,
-	msToMin,
-	round2,
-	getTag,
-	isWorkout,
-	buildLaps,
-} from "@/shared/format"
+import { formatRunDetail } from "@/shared/format"
 import type { SessionData } from "@/shared/types"
 
 export type AppContext = {
@@ -117,14 +109,14 @@ const handleStravaCallback = async ({
 		})
 
 		await env.SESSIONS.put(
-			"mcp-tokens",
+			MCP_TOKENS_KEY,
 			JSON.stringify({
 				athleteId: tokens.athlete.id,
 				accessToken: tokens.access_token,
 				expiresAt: tokens.expires_at,
 				refreshToken: tokens.refresh_token,
 			}),
-			{ expirationTtl: 30 * 24 * 60 * 60 },
+			{ expirationTtl: THIRTY_DAYS },
 		)
 
 		headers.set("Location", "/")
@@ -170,47 +162,7 @@ const handleRunDetail = async ({
 	const isoUTC = act.start_date
 	const weather = lat && lng ? await getWeather({ lat, lng, isoUTC }) : null
 
-	return Response.json({
-		name: act.name,
-		strava_activity_id: act.id,
-		date: act.start_date,
-		date_local: act.start_date_local,
-		distance_mi: round2(mToMi(act.distance)),
-		moving_time_s: act.moving_time,
-		elapsed_time_s: act.elapsed_time,
-		avg_pace_s_per_mi: Math.round(act.moving_time / mToMi(act.distance)),
-		avg_pace_min_per_mile: msToMin(act.average_speed),
-		avg_hr: Math.round(act.average_heartrate),
-		cadence_spm: round2(act.average_cadence * 2),
-		max_hr: act.max_heartrate,
-		elev_gain_ft: round2(mToFt(act.total_elevation_gain)),
-		route_start_latlng: act.start_latlng,
-		workout_type_tag: getTag(act.workout_type),
-		splits: act.splits_standard.map(
-			(split: {
-				split: number
-				distance: number
-				moving_time: number
-				average_speed: number
-				average_heartrate: number
-				elevation_difference: number
-			}) => ({
-				split: split.split,
-				distance_mi: round2(mToMi(split.distance)),
-				moving_time_s: split.moving_time,
-				pace_s: round2(split.moving_time / mToMi(split.distance)),
-				pace_min_per_mile: msToMin(split.average_speed),
-				avg_hr: Math.round(split.average_heartrate),
-				elev_gain_ft: round2(mToFt(split.elevation_difference)),
-			}),
-		),
-		...(isWorkout(act) && { laps: buildLaps(act) }),
-		rpe: act.perceived_exertion || null,
-		shoes: act.gear?.name,
-		notes: act.description,
-		private_notes: act.private_note || null,
-		weather,
-	})
+	return Response.json(formatRunDetail(act, weather))
 }
 
 // --- App ---

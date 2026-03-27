@@ -67,12 +67,12 @@ export function computeStats(runs: SummaryActivity[]): RunStats {
 	const e28HR = easy28.filter((r) => r.hr != null)
 
 	const hr7 = weightedAvg(
-		e7HR.map((r) => r.average_heartrate ?? 0),
-		e7HR.map((r) => r.moving_time ?? 0),
+		e7HR.map((r) => r.hr ?? 0),
+		e7HR.map((r) => r.secs),
 	)
 	const hr28 = weightedAvg(
-		e28HR.map((r) => r.average_heartrate ?? 0),
-		e28HR.map((r) => r.moving_time ?? 0),
+		e28HR.map((r) => r.hr ?? 0),
+		e28HR.map((r) => r.secs),
 	)
 	const hrDeltaBpm = hr7 - hr28
 

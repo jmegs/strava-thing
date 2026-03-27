@@ -1,18 +1,17 @@
 import { env } from "cloudflare:workers"
 import { z } from "zod"
-import type { SummaryActivity } from "strava"
 import type { SessionData } from "@/shared/types"
 import { createMcpStravaClient } from "@/server/strava"
+import { fetchRecentRuns } from "@/server/runs"
 import { getWeather } from "@/server/weather"
 import { computeStats } from "@/shared/stats"
+import { MCP_TOKENS_KEY } from "@/server/session"
 import {
 	mToMi,
-	mToFt,
 	msToMin,
 	round2,
 	getTag,
-	isWorkout,
-	buildLaps,
+	formatRunDetail,
 } from "@/shared/format"
 
 // --- JSON-RPC helpers ---
@@ -45,22 +44,7 @@ function jsonRpcError(
 // --- Token loading ---
 
 async function loadMcpTokens(): Promise<SessionData | null> {
-	return env.SESSIONS.get<SessionData>("mcp-tokens", "json")
-}
-
-// --- Strava data fetching ---
-
-async function fetchRuns(session: SessionData): Promise<SummaryActivity[]> {
-	const strava = createMcpStravaClient(session)
-	const after = Math.floor(Date.now() / 1000) - 90 * 86400
-	const list: SummaryActivity[] =
-		await strava.activities.getLoggedInAthleteActivities({
-			after,
-			per_page: 200,
-		})
-	return list
-		.filter((a) => a.type === "Run")
-		.sort((a, b) => b.start_date.localeCompare(a.start_date))
+	return env.SESSIONS.get<SessionData>(MCP_TOKENS_KEY, "json")
 }
 
 // --- Tool definitions ---
@@ -106,7 +90,8 @@ async function handleGetStats() {
 	const session = await loadMcpTokens()
 	if (!session)
 		return { error: "Not authenticated. Log in at strava.john.zone first." }
-	const runs = await fetchRuns(session)
+	const strava = createMcpStravaClient(session)
+	const runs = await fetchRecentRuns(strava)
 	return computeStats(runs)
 }
 
@@ -114,7 +99,8 @@ async function handleGetRuns(args: { limit?: number }) {
 	const session = await loadMcpTokens()
 	if (!session)
 		return { error: "Not authenticated. Log in at strava.john.zone first." }
-	const runs = await fetchRuns(session)
+	const strava = createMcpStravaClient(session)
+	const runs = await fetchRecentRuns(strava)
 	const limit = args.limit ?? 20
 	return runs.slice(0, limit).map((r) => ({
 		id: r.id,
@@ -145,47 +131,7 @@ async function handleGetRunDetail(args: { run_id: number }) {
 	const isoUTC = act.start_date
 	const weather = lat && lng ? await getWeather({ lat, lng, isoUTC }) : null
 
-	return {
-		name: act.name,
-		strava_activity_id: act.id,
-		date: act.start_date,
-		date_local: act.start_date_local,
-		distance_mi: round2(mToMi(act.distance)),
-		moving_time_s: act.moving_time,
-		elapsed_time_s: act.elapsed_time,
-		avg_pace_s_per_mi: Math.round(act.moving_time / mToMi(act.distance)),
-		avg_pace_min_per_mile: msToMin(act.average_speed),
-		avg_hr: Math.round(act.average_heartrate),
-		cadence_spm: round2(act.average_cadence * 2),
-		max_hr: act.max_heartrate,
-		elev_gain_ft: round2(mToFt(act.total_elevation_gain)),
-		route_start_latlng: act.start_latlng,
-		workout_type_tag: getTag(act.workout_type),
-		splits: act.splits_standard.map(
-			(split: {
-				split: number
-				distance: number
-				moving_time: number
-				average_speed: number
-				average_heartrate: number
-				elevation_difference: number
-			}) => ({
-				split: split.split,
-				distance_mi: round2(mToMi(split.distance)),
-				moving_time_s: split.moving_time,
-				pace_s: round2(split.moving_time / mToMi(split.distance)),
-				pace_min_per_mile: msToMin(split.average_speed),
-				avg_hr: Math.round(split.average_heartrate),
-				elev_gain_ft: round2(mToFt(split.elevation_difference)),
-			}),
-		),
-		...(isWorkout(act) && { laps: buildLaps(act) }),
-		rpe: act.perceived_exertion || null,
-		shoes: act.gear?.name,
-		notes: act.description,
-		private_notes: act.private_note || null,
-		weather,
-	}
+	return formatRunDetail(act, weather)
 }
 
 // --- MCP protocol dispatch ---
@@ -220,7 +166,6 @@ export async function handleMcp({ request }: { request: Request }) {
 		return jsonRpcError(null, -32700, "Parse error")
 	}
 
-	// Notifications (no id) return 202
 	if (body.id === undefined) {
 		return new Response(null, { status: 202, headers: CORS_HEADERS })
 	}

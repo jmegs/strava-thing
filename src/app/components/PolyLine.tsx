@@ -18,12 +18,16 @@ export function PolyLine({ summary, size = 32, className = "" }: Props) {
 		const pts = polyline.decode(summary) as [number, number][]
 		if (pts.length < 2) return ""
 
-		const lats = pts.map((p) => p[0])
-		const lngs = pts.map((p) => p[1])
-		const minLat = Math.min(...lats)
-		const maxLat = Math.max(...lats)
-		const minLng = Math.min(...lngs)
-		const maxLng = Math.max(...lngs)
+		let minLat = Infinity
+		let maxLat = -Infinity
+		let minLng = Infinity
+		let maxLng = -Infinity
+		for (const [lat, lng] of pts) {
+			if (lat < minLat) minLat = lat
+			if (lat > maxLat) maxLat = lat
+			if (lng < minLng) minLng = lng
+			if (lng > maxLng) maxLng = lng
+		}
 		const w = maxLng - minLng || 1
 		const h = maxLat - minLat || 1
 

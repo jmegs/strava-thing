@@ -5,6 +5,12 @@ export interface SessionData {
 	refreshToken: string
 }
 
+export interface WeatherData {
+	temp_f: number | null
+	dewpoint_f: number | null
+	wind_mph: number | null
+}
+
 export interface OpenMeteoResponse {
 	hourly: {
 		time: string[]
