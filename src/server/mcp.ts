@@ -67,6 +67,11 @@ const TOOLS = [
 					type: "number",
 					description: "Max runs to return (default 20)",
 				},
+				page: {
+					type: "number",
+					description:
+						"Page number for older runs (default 1, 200 runs per page)",
+				},
 			},
 		},
 	},
@@ -78,6 +83,36 @@ const TOOLS = [
 			type: "object" as const,
 			properties: {
 				run_id: { type: "number", description: "Strava activity ID" },
+			},
+			required: ["run_id"],
+		},
+	},
+	{
+		name: "get_activity_streams",
+		description:
+			"Get time-series stream data for a run (heart rate, pace, distance, etc). Returns arrays of values at each recorded point.",
+		inputSchema: {
+			type: "object" as const,
+			properties: {
+				run_id: { type: "number", description: "Strava activity ID" },
+				keys: {
+					type: "array",
+					items: {
+						type: "string",
+						enum: [
+							"heartrate",
+							"time",
+							"distance",
+							"velocity_smooth",
+							"altitude",
+							"cadence",
+							"latlng",
+							"grade_smooth",
+						],
+					},
+					description:
+						"Stream types to fetch (default: heartrate, time, distance)",
+				},
 			},
 			required: ["run_id"],
 		},
@@ -95,12 +130,12 @@ async function handleGetStats() {
 	return computeStats(runs)
 }
 
-async function handleGetRuns(args: { limit?: number }) {
+async function handleGetRuns(args: { limit?: number; page?: number }) {
 	const session = await loadMcpTokens()
 	if (!session)
 		return { error: "Not authenticated. Log in at strava.john.zone first." }
 	const strava = createMcpStravaClient(session)
-	const runs = await fetchRecentRuns(strava)
+	const runs = await fetchRecentRuns(strava, args.page ?? 1)
 	const limit = args.limit ?? 20
 	return runs.slice(0, limit).map((r) => ({
 		id: r.id,
@@ -132,6 +167,33 @@ async function handleGetRunDetail(args: { run_id: number }) {
 	const weather = lat && lng ? await getWeather({ lat, lng, isoUTC }) : null
 
 	return formatRunDetail(act, weather)
+}
+
+async function handleGetActivityStreams(args: {
+	run_id: number
+	keys?: string[]
+}) {
+	const session = await loadMcpTokens()
+	if (!session)
+		return { error: "Not authenticated. Log in at strava.john.zone first." }
+
+	const schema = z.object({
+		run_id: z.number(),
+		keys: z
+			.array(z.string())
+			.optional()
+			.default(["heartrate", "time", "distance"]),
+	})
+	const parsed = schema.safeParse(args)
+	if (!parsed.success) return { error: "Invalid arguments" }
+
+	const strava = createMcpStravaClient(session)
+	const streams = await strava.streams.getActivityStreams({
+		id: parsed.data.run_id,
+		keys: parsed.data.keys as import("strava").StreamKeys[],
+	})
+
+	return streams
 }
 
 // --- MCP protocol dispatch ---
@@ -205,6 +267,11 @@ export async function handleMcp({ request }: { request: Request }) {
 					case "get_run_detail":
 						result = await handleGetRunDetail(
 							toolArgs as { run_id: number },
+						)
+						break
+					case "get_activity_streams":
+						result = await handleGetActivityStreams(
+							toolArgs as { run_id: number; keys?: string[] },
 						)
 						break
 					default:

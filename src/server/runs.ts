@@ -1,15 +1,13 @@
 import type { Strava, SummaryActivity } from "strava"
 
-const NINETY_DAYS_S = 90 * 86400
-
 export async function fetchRecentRuns(
 	strava: Strava,
+	page = 1,
 ): Promise<SummaryActivity[]> {
-	const after = Math.floor(Date.now() / 1000) - NINETY_DAYS_S
 	const list: SummaryActivity[] =
 		await strava.activities.getLoggedInAthleteActivities({
-			after,
 			per_page: 200,
+			page,
 		})
 	return list
 		.filter((a) => a.type === "Run")
