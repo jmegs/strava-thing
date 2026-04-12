@@ -34,7 +34,8 @@ export function round2(num: number) {
 	return Math.round(num * 100) / 100
 }
 
-export function getTag(workoutType: number | null | undefined) {
+export function getTag(workoutType: number | null | undefined, sportType?: string) {
+	if (sportType === "TrailRun") return "T"
 	if (workoutType === 2) return "L"
 	if (workoutType === 3) return "Q"
 	return null // 0 or any other value returns null (no tag)
@@ -83,7 +84,7 @@ export function formatRunDetail(
 		max_hr: act.max_heartrate,
 		elev_gain_ft: round2(mToFt(act.total_elevation_gain)),
 		route_start_latlng: act.start_latlng,
-		workout_type_tag: getTag(act.workout_type),
+		workout_type_tag: getTag(act.workout_type, act.sport_type),
 		splits: act.splits_standard.map(
 			(split: {
 				split: number

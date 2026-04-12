@@ -144,7 +144,7 @@ async function handleGetRuns(args: { limit?: number; page?: number }) {
 		distance_mi: round2(mToMi(r.distance ?? 0)),
 		pace: msToMin(r.average_speed ?? 0),
 		avg_hr: r.average_heartrate ? Math.round(r.average_heartrate) : null,
-		tag: getTag(r.workout_type),
+		tag: getTag(r.workout_type, (r as unknown as { sport_type?: string }).sport_type),
 	}))
 }
 

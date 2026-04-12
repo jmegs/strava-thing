@@ -39,7 +39,7 @@ export function RunListItem({ run, selected, ref }: Props) {
 	const hr = run.average_heartrate
 		? run.average_heartrate.toFixed(0) + "bpm"
 		: "—"
-	const tag = getTag(run.workout_type)
+	const tag = getTag(run.workout_type, (run as unknown as { sport_type?: string }).sport_type)
 
 	return (
 		<li

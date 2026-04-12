@@ -29,6 +29,7 @@ export function computeStats(runs: SummaryActivity[]): RunStats {
 		secs: r.moving_time ?? 0,
 		hr: r.average_heartrate ?? null,
 		tag: r.workout_type,
+		sportType: (r as unknown as { sport_type?: string }).sport_type,
 	}))
 
 	function inLast(d: Date, days: number) {
@@ -47,7 +48,7 @@ export function computeStats(runs: SummaryActivity[]): RunStats {
 	const weeklyDelta = miles7 - miles28 / 4
 
 	// easy runs (untagged)
-	const easyRuns = processedRuns.filter((r) => getTag(r.tag) === null)
+	const easyRuns = processedRuns.filter((r) => getTag(r.tag, r.sportType) === null)
 	const easy7 = easyRuns.filter((r) => inLast(r.date, 7))
 	const easy28 = easyRuns.filter((r) => inLast(r.date, 28))
 
