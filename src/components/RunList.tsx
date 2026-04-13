@@ -1,8 +1,6 @@
-"use client"
-
 import { useState, useRef, useEffect } from "react"
 import type { SummaryActivity } from "strava"
-import { useKeyboard } from "@/app/hooks/useKeyboard"
+import { useKeyboard } from "../hooks/useKeyboard"
 import { RunListItem, type RunListItemHandle } from "./RunListItem"
 
 interface Props {

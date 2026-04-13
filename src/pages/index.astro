@@ -1,0 +1,17 @@
+---
+import Base from "../layouts/Base.astro"
+import StatHeader from "../components/StatHeader.astro"
+import { RunList } from "../components/RunList"
+import { createStravaClient } from "../lib/strava"
+import { fetchRecentRuns } from "../lib/runs"
+import type { SessionData } from "../shared/types"
+
+const auth = (await Astro.session!.get("auth")) as SessionData
+const strava = createStravaClient(auth, Astro.session!)
+const runs = await fetchRecentRuns(strava)
+---
+
+<Base>
+	<StatHeader runs={runs} />
+	<RunList client:load runs={runs} />
+</Base>

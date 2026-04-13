@@ -1,9 +1,7 @@
-"use client"
-
 import { useImperativeHandle, useRef } from "react"
 import type { SummaryActivity } from "strava"
 import { mToMi, secToHMS, getTag } from "@/shared/format"
-import { useCopyRun } from "@/app/hooks/useCopyRun"
+import { useCopyRun } from "../hooks/useCopyRun"
 import { PolyLine } from "./PolyLine"
 
 export interface RunListItemHandle {

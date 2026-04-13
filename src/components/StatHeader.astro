@@ -1,0 +1,58 @@
+---
+import type { SummaryActivity } from "strava"
+import { computeStats } from "../shared/stats"
+import StatHeaderCard from "./StatHeaderCard.astro"
+
+interface Props {
+	runs: SummaryActivity[]
+}
+
+const { runs } = Astro.props
+const stats = computeStats(runs)
+
+const milesCardLines = [
+	`${stats.miles_7d.toFixed(1)} mi`,
+	`${stats.weekly_delta >= 0 ? "+" : ""}${stats.weekly_delta.toFixed(1)} mi vs 28d avg`,
+]
+
+const easyPaceCardLines = [
+	stats.easy_pace_7d,
+	`${stats.easy_pace_delta_pct >= 0 ? "+" : ""}${stats.easy_pace_delta_pct.toFixed(1)}% vs 28d avg`,
+]
+
+const easyHRCardLines = [
+	`${stats.easy_hr_7d} bpm`,
+	`${stats.easy_hr_delta_bpm > 0 ? "+" : ""}${stats.easy_hr_delta_bpm.toFixed(0)} bpm vs 28d avg`,
+]
+
+const longCardLines = [
+	stats.longest_run_28d ? `${stats.longest_run_28d.toFixed(1)} mi` : "–",
+]
+---
+
+<header class="px-2 py-4 md:p-8 grid grid-cols-12 grid-rows-[auto_1fr] gap-2 mb-2">
+	<StatHeaderCard
+		title="Miles"
+		timeframe="7d"
+		statlines={milesCardLines}
+		class="col-span-6 md:col-span-3"
+	/>
+	<StatHeaderCard
+		title="Long"
+		timeframe="28d"
+		statlines={longCardLines}
+		class="col-span-6 md:col-span-3"
+	/>
+	<StatHeaderCard
+		title="Easy Pace"
+		timeframe="7d"
+		statlines={easyPaceCardLines}
+		class="col-span-6 md:col-span-3"
+	/>
+	<StatHeaderCard
+		title="Easy HR"
+		timeframe="28d"
+		statlines={easyHRCardLines}
+		class="col-span-6 md:col-span-3"
+	/>
+</header>

@@ -1,18 +1,18 @@
 import { env } from "cloudflare:workers"
 import { z } from "zod"
-import type { SessionData } from "@/shared/types"
-import { createMcpStravaClient } from "@/server/strava"
-import { fetchRecentRuns } from "@/server/runs"
-import { getWeather } from "@/server/weather"
-import { computeStats } from "@/shared/stats"
-import { MCP_TOKENS_KEY } from "@/server/session"
+import type { SessionData } from "../shared/types"
+import { createMcpStravaClient } from "./strava"
+import { fetchRecentRuns } from "./runs"
+import { getWeather } from "./weather"
+import { computeStats } from "../shared/stats"
+import { MCP_TOKENS_KEY } from "./session"
 import {
 	mToMi,
 	msToMin,
 	round2,
 	getTag,
 	formatRunDetail,
-} from "@/shared/format"
+} from "../shared/format"
 
 // --- JSON-RPC helpers ---
 
@@ -198,22 +198,7 @@ async function handleGetActivityStreams(args: {
 
 // --- MCP protocol dispatch ---
 
-export async function handleMcp({ request }: { request: Request }) {
-	if (request.method === "OPTIONS") {
-		return new Response(null, { status: 204, headers: CORS_HEADERS })
-	}
-
-	if (request.method === "GET") {
-		return new Response("Method Not Allowed", {
-			status: 405,
-			headers: CORS_HEADERS,
-		})
-	}
-
-	if (request.method === "DELETE") {
-		return new Response(null, { status: 202, headers: CORS_HEADERS })
-	}
-
+export async function handleMcp(request: Request) {
 	if (request.method !== "POST") {
 		return new Response("Method Not Allowed", {
 			status: 405,

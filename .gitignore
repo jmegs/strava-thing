@@ -11,8 +11,9 @@ pnpm-debug.log*
 .env
 .dev.vars
 
-# Vite build output
+# Build output
 dist
+.astro
 
 # TypeScript
 *.tsbuildinfo

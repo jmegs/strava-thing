@@ -4,7 +4,7 @@ type CopyStatus = "idle" | "copying" | "copied"
 
 export function useCopyRun() {
 	const [status, setStatus] = useState<CopyStatus>("idle")
-	const timerRef = useRef<ReturnType<typeof setTimeout>>()
+	const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined)
 
 	useEffect(() => {
 		return () => clearTimeout(timerRef.current)
