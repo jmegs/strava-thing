@@ -5,13 +5,28 @@ import { RunList } from "../components/RunList"
 import { createStravaClient } from "../lib/strava"
 import { fetchRecentRuns } from "../lib/runs"
 import type { SessionData } from "../shared/types"
+import type { SummaryActivity } from "strava"
 
 const auth = (await Astro.session!.get("auth")) as SessionData
-const strava = createStravaClient(auth, Astro.session!)
-const runs = await fetchRecentRuns(strava)
+let runs: SummaryActivity[] = []
+try {
+	const strava = createStravaClient(auth, Astro.session!)
+	runs = await fetchRecentRuns(strava)
+} catch (e) {
+	console.error("Failed to fetch runs:", e)
+}
 ---
 
 <Base>
-	<StatHeader runs={runs} />
-	<RunList client:load runs={runs} />
+	{runs.length > 0 ? (
+		<>
+			<StatHeader runs={runs} />
+			<RunList client:load runs={runs} />
+		</>
+	) : (
+		<div class="p-8 text-center">
+			<p>Could not load runs. Strava may be down, or your session may have expired.</p>
+			<a href="/auth/strava" class="underline mt-2 inline-block">Re-authenticate</a>
+		</div>
+	)}
 </Base>

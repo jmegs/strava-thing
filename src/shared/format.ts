@@ -58,8 +58,8 @@ export function buildLaps(act: DetailedActivity) {
 		moving_time: lap.moving_time,
 		pace_s_per_mi: round2(lap.moving_time / mToMi(lap.distance)),
 		pace_min_per_mile: msToMin(lap.average_speed),
-		avg_hr: Math.round(lap.average_heartrate),
-		max_hr: Math.round(lap.max_heartrate),
+		avg_hr: lap.average_heartrate ? Math.round(lap.average_heartrate) : null,
+		max_hr: lap.max_heartrate ? Math.round(lap.max_heartrate) : null,
 		elev_gain_ft: round2(mToFt(lap.total_elevation_gain)),
 	}))
 }
@@ -78,9 +78,9 @@ export function formatRunDetail(
 		elapsed_time_s: act.elapsed_time,
 		avg_pace_s_per_mi: Math.round(act.moving_time / mToMi(act.distance)),
 		avg_pace_min_per_mile: msToMin(act.average_speed),
-		avg_hr: Math.round(act.average_heartrate),
-		cadence_spm: round2(act.average_cadence * 2),
-		max_hr: act.max_heartrate,
+		avg_hr: act.average_heartrate ? Math.round(act.average_heartrate) : null,
+		cadence_spm: act.average_cadence ? round2(act.average_cadence * 2) : null,
+		max_hr: act.max_heartrate ?? null,
 		elev_gain_ft: round2(mToFt(act.total_elevation_gain)),
 		route_start_latlng: act.start_latlng,
 		workout_type_tag: getTag(act.workout_type),

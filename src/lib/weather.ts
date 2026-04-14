@@ -23,9 +23,11 @@ export const getWeather = async (params: {
 		end_date: dateStr,
 	})
 
-	const res: OpenMeteoResponse = await fetch(
+	const fetchRes = await fetch(
 		`https://api.open-meteo.com/v1/forecast?${query.toString()}`,
-	).then((r) => r.json())
+	)
+	if (!fetchRes.ok) return { temp_f: null, dewpoint_f: null, wind_mph: null }
+	const res: OpenMeteoResponse = await fetchRes.json()
 
 	const times: string[] = res?.hourly?.time ?? []
 	const idx = times.indexOf(hourStr)

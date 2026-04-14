@@ -23,10 +23,11 @@ export function useCopyRun() {
 			await navigator.clipboard.write([text])
 		} catch (e) {
 			console.error("Failed to copy: ", e)
-		} finally {
-			setStatus("copied")
-			timerRef.current = setTimeout(() => setStatus("idle"), 1000)
+			setStatus("idle")
+			return
 		}
+		setStatus("copied")
+		timerRef.current = setTimeout(() => setStatus("idle"), 1000)
 	}
 
 	return { copying: status === "copying", copied: status === "copied", copyRun }
