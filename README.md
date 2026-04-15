@@ -1,6 +1,9 @@
 # Strava Thing
 
+A Strava analysis dashboard built with [Astro](https://astro.build/) and deployed to [Cloudflare Workers](https://developers.cloudflare.com/workers).
+
 ## Set up
+
 Create a new [Strava API application](https://www.strava.com/settings/api)
 
 Then in `.dev.vars`
@@ -13,30 +16,30 @@ AUTH_SECRET_KEY=<random_string>
 ```
 
 ## Development
-rwsdk emulates cloudflare in development automatically with vite environments
 
 ```shell
-pnpm run dev
+bun run dev
 ```
 
 ## Deploying
+
 1. Change the name of the worker and optionally the domain in `wrangler.jsonc`
 
 2. Create a KV namespace for sessions and update the `id` in `wrangler.jsonc`
 ```shell
-pnpm wrangler kv namespace create SESSIONS
+bun wrangler kv namespace create SESSIONS
 ```
 
 3. Add secrets to prod
 ```shell
-pnpm wrangler secrets put STRAVA_CLIENT_ID
-pnpm wrangler secrets put STRAVA_CLIENT_SECRET
-pnpm wrangler secrets put AUTH_SECRET_KEY
+bun wrangler secrets put STRAVA_CLIENT_ID
+bun wrangler secrets put STRAVA_CLIENT_SECRET
+bun wrangler secrets put AUTH_SECRET_KEY
 ```
 
 4. Then deploy
 ```shell
-pnpm run release
+bun run release
 ```
 
 ## Claude Connector (MCP)
@@ -52,8 +55,9 @@ Available tools:
 - **get_stats** — weekly mileage, easy pace, easy HR, longest run (7d/28d)
 - **get_runs** — list of recent runs with distance, pace, HR, and workout tag
 - **get_run_detail** — full details for a specific run including splits, weather, laps, and notes
+- **get_activity_streams** — raw time-series data (heartrate, pace, cadence, altitude, lat/lng) for a specific activity
 
 ## Further Reading
 
-- [RedwoodSDK Documentation](https://docs.rwsdk.com/)
+- [Astro Documentation](https://docs.astro.build/)
 - [Cloudflare Workers Documentation](https://developers.cloudflare.com/workers)
