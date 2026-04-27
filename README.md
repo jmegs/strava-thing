@@ -1,61 +1,117 @@
 # Strava Thing
 
-A Strava analysis dashboard built with [Astro](https://astro.build/) and deployed to [Cloudflare Workers](https://developers.cloudflare.com/workers).
+An Astro 6 Strava running dashboard deployed to Cloudflare Workers. The dashboard and AI clients use the same REST API data model.
 
-## Set up
+## Strava OAuth Setup
 
-Create a new [Strava API application](https://www.strava.com/settings/api)
+Create a [Strava API application](https://www.strava.com/settings/api) and configure the OAuth callback for your deployed domain:
 
-Then in `.dev.vars`
+```txt
+https://strava.john.zone/auth/callback
 ```
+
+For local development, create `.dev.vars`:
+
+```txt
 STRAVA_CLIENT_ID=<client_id>
 STRAVA_CLIENT_SECRET=<client_secret>
-
-// e.g. openssl rand -hex 32
 AUTH_SECRET_KEY=<random_string>
 ```
 
-## Development
+Generate `AUTH_SECRET_KEY` with something like:
 
-```shell
-bun run dev
+```sh
+openssl rand -hex 32
 ```
 
-## Deploying
+## Cloudflare KV
 
-1. Change the name of the worker and optionally the domain in `wrangler.jsonc`
+Astro sessions, Strava OAuth tokens, and first-party API token metadata are stored in the `SESSIONS` KV binding.
 
-2. Create a KV namespace for sessions and update the `id` in `wrangler.jsonc`
-```shell
+Create the namespace and copy the ID into `wrangler.jsonc`:
+
+```sh
 bun wrangler kv namespace create SESSIONS
 ```
 
-3. Add secrets to prod
-```shell
+Strava tokens are stored by athlete ID. API tokens are stored by SHA-256 hash only; raw tokens are returned once when created.
+
+## Development
+
+```sh
+bun run dev
+```
+
+Log in through `/auth/strava` to authorize Strava and seed the server-side Strava token store.
+
+## Deployment
+
+1. Update the worker name/domain in `wrangler.jsonc` if needed.
+2. Ensure the `SESSIONS` KV namespace ID is configured.
+3. Add production secrets:
+
+```sh
 bun wrangler secrets put STRAVA_CLIENT_ID
 bun wrangler secrets put STRAVA_CLIENT_SECRET
 bun wrangler secrets put AUTH_SECRET_KEY
 ```
 
-4. Then deploy
-```shell
+4. Deploy:
+
+```sh
 bun run release
 ```
 
-## Claude Connector (MCP)
+## REST API
 
-The app exposes an MCP endpoint at `/mcp` that lets Claude access your Strava running data.
+Read endpoints accept either the dashboard browser session cookie or a bearer API token:
 
-1. Log in to your deployed app at least once (this seeds the MCP auth tokens)
-2. In Claude, go to **Settings > Connectors > Add Connector**
-3. Enter your app's MCP URL: `https://<your-domain>/mcp`
-4. Ask Claude things like "What are my running stats this week?" or "Show me my last 5 runs"
+```txt
+Authorization: Bearer st_run_live_<token>
+```
 
-Available tools:
-- **get_stats** — weekly mileage, easy pace, easy HR, longest run (7d/28d)
-- **get_runs** — list of recent runs with distance, pace, HR, and workout tag
-- **get_run_detail** — full details for a specific run including splits, weather, laps, and notes
-- **get_activity_streams** — raw time-series data (heartrate, pace, cadence, altitude, lat/lng) for a specific activity
+Available endpoints:
+
+- `GET /api/me`
+- `GET /api/stats?windows=7,28`
+- `GET /api/runs?limit=20&page=1&after=...&before=...`
+- `GET /api/runs/{run_id}`
+- `GET /api/runs/{run_id}/streams?keys=heartrate,time,distance`
+- `GET /openapi.json`
+
+Token management endpoints require browser session auth only:
+
+- `GET /api/tokens`
+- `POST /api/tokens`
+- `DELETE /api/tokens/{token_id}`
+
+Create a token after logging into the dashboard:
+
+```sh
+curl -X POST https://strava.john.zone/api/tokens \
+  -H "Content-Type: application/json" \
+  -b "session=<browser-session-cookie>" \
+  -d '{"name":"ChatGPT Action","expiresAt":null}'
+```
+
+The raw `st_run_live_...` token is returned only in that response.
+
+## GPT Action Setup
+
+Use the OpenAPI schema at:
+
+```txt
+https://strava.john.zone/openapi.json
+```
+
+Configure authentication in the GPT Action:
+
+- Auth type: `API Key`
+- Header: `Authorization`
+- Prefix: `Bearer`
+- API key value: the generated `st_run_live_...` token
+
+The GPT Action schema intentionally excludes token-management routes.
 
 ## Further Reading
 
