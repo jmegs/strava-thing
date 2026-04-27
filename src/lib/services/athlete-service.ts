@@ -1,4 +1,4 @@
-import { createStravaClientForAthlete } from "@/lib/strava"
+import { createStravaClientForAthlete } from "@/lib/strava/client"
 
 export async function getCurrentAthlete(athleteId: number) {
 	try {

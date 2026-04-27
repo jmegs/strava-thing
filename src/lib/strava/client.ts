@@ -1,6 +1,6 @@
 import { env } from "cloudflare:workers"
 import { Strava } from "strava"
-import { loadStravaTokens, saveStravaTokens } from "./auth/strava-tokens"
+import { loadStravaTokens, saveStravaTokens } from "@/lib/auth/strava-tokens"
 
 export async function createStravaClientForAthlete(athleteId: number) {
 	const auth = await loadStravaTokens(athleteId)

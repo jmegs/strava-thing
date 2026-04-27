@@ -2,9 +2,9 @@ import type { StreamKeys } from "strava"
 import { z } from "zod"
 import { formatRunDetail, formatRunSummary } from "@/lib/format/runs"
 import type { RunDetail, RunSummary } from "@/lib/format/runs"
-import { fetchRecentRuns } from "@/lib/runs"
-import { createStravaClientForAthlete } from "@/lib/strava"
-import { getWeather } from "@/lib/weather"
+import { createStravaClientForAthlete } from "@/lib/strava/client"
+import { fetchRecentRuns } from "@/lib/strava/runs"
+import { getWeatherForActivity } from "@/lib/services/weather-service"
 
 export const ALLOWED_STREAM_KEYS = [
 	"heartrate",
@@ -52,13 +52,13 @@ export async function listRunsForAthlete(
 	const page = Math.max(options.page ?? 1, 1)
 	const strava = await createStravaClientForAthlete(athleteId)
 	const runs = await fetchRecentRuns(strava, page, {
-		limit: 200,
+		limit,
 		after: options.after ?? undefined,
 		before: options.before ?? undefined,
 	})
 
 	return {
-		runs: runs.slice(0, limit).map(formatRunSummary),
+		runs: runs.map(formatRunSummary),
 		limit,
 		page,
 	}
@@ -72,11 +72,7 @@ export async function getRunDetailForAthlete(
 	const activity = await strava.activities.getActivityById({ id: runId })
 	if (activity.type !== "Run") return null
 
-	const [lat, lng] = activity.start_latlng ?? [null, null]
-	const weather =
-		typeof lat === "number" && typeof lng === "number"
-			? await getWeather({ lat, lng, isoUTC: activity.start_date })
-			: null
+	const weather = await getWeatherForActivity(activity)
 
 	return formatRunDetail(activity, weather)
 }

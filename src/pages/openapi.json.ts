@@ -34,6 +34,28 @@ const runSummarySchema = {
 	},
 }
 
+const runAggregateStatsSchema = {
+	type: "object",
+	required: [
+		"run_count",
+		"distance_mi",
+		"moving_time_s",
+		"longest_run_mi",
+		"avg_pace_s_per_mi",
+		"avg_pace",
+		"avg_hr",
+	],
+	properties: {
+		run_count: { type: "integer" },
+		distance_mi: { type: "number" },
+		moving_time_s: { type: "integer" },
+		longest_run_mi: { type: "number" },
+		avg_pace_s_per_mi: { type: ["integer", "null"] },
+		avg_pace: { type: ["string", "null"] },
+		avg_hr: { type: ["integer", "null"] },
+	},
+}
+
 const spec = {
 	openapi: "3.1.0",
 	info: {
@@ -66,6 +88,16 @@ const spec = {
 						},
 					},
 				],
+			},
+			RunAggregateStats: runAggregateStatsSchema,
+			StatsWindow: {
+				type: "object",
+				required: ["window_days", "all", "easy"],
+				properties: {
+					window_days: { type: "integer" },
+					all: { $ref: "#/components/schemas/RunAggregateStats" },
+					easy: { $ref: "#/components/schemas/RunAggregateStats" },
+				},
 			},
 		},
 	},
@@ -121,7 +153,21 @@ const spec = {
 						description: "Running stats",
 						content: {
 							"application/json": {
-								schema: { type: "object", properties: { data: { type: "object" } } },
+								schema: {
+									type: "object",
+									properties: {
+										data: {
+											type: "object",
+											required: ["windows"],
+											properties: {
+												windows: {
+													type: "array",
+													items: { $ref: "#/components/schemas/StatsWindow" },
+												},
+											},
+										},
+									},
+								},
 							},
 						},
 					},

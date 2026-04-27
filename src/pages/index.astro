@@ -4,17 +4,17 @@ import StatHeader from "../components/StatHeader.astro"
 import { RunList } from "../components/RunList"
 import { listRunsForAthlete } from "../lib/services/runs-service"
 import { getStatsForAthlete } from "../lib/services/stats-service"
+import type { StatsWindow } from "../lib/services/stats-service"
 import type { SessionData } from "../shared/types"
 import type { RunSummary } from "../lib/format/runs"
-import type { RunStats } from "../shared/stats"
 
 const auth = (await Astro.session!.get("auth")) as SessionData
 let runs: RunSummary[] = []
-let stats: RunStats | null = null
+let stats: StatsWindow[] | null = null
 try {
 	const statsResult = await getStatsForAthlete(auth.athleteId)
 	const runsResult = await listRunsForAthlete(auth.athleteId, { limit: 100 })
-	stats = statsResult.dashboard
+	stats = statsResult.windows
 	runs = runsResult.runs
 } catch (e) {
 	console.error("Failed to fetch runs:", e)
