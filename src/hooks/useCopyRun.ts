@@ -15,9 +15,15 @@ export function useCopyRun() {
 
 		try {
 			const text = new ClipboardItem({
-				"text/plain": fetch(`/api/run/${id}`)
+				"text/plain": fetch(`/api/runs/${id}`)
 					.then((r) => r.json())
-					.then((json) => JSON.stringify(json, null, 2))
+					.then((json) => {
+						const payload =
+							json && typeof json === "object" && "data" in json
+								? json.data
+								: json
+						return JSON.stringify(payload, null, 2)
+					})
 					.then((str) => new Blob([str], { type: "text/plain" })),
 			})
 			await navigator.clipboard.write([text])

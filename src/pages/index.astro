@@ -2,16 +2,20 @@
 import Base from "../layouts/Base.astro"
 import StatHeader from "../components/StatHeader.astro"
 import { RunList } from "../components/RunList"
-import { createStravaClient } from "../lib/strava"
-import { fetchRecentRuns } from "../lib/runs"
+import { listRunsForAthlete } from "../lib/services/runs-service"
+import { getStatsForAthlete } from "../lib/services/stats-service"
 import type { SessionData } from "../shared/types"
-import type { SummaryActivity } from "strava"
+import type { RunSummary } from "../lib/format/runs"
+import type { RunStats } from "../shared/stats"
 
 const auth = (await Astro.session!.get("auth")) as SessionData
-let runs: SummaryActivity[] = []
+let runs: RunSummary[] = []
+let stats: RunStats | null = null
 try {
-	const strava = createStravaClient(auth, Astro.session!)
-	runs = await fetchRecentRuns(strava)
+	const statsResult = await getStatsForAthlete(auth.athleteId)
+	const runsResult = await listRunsForAthlete(auth.athleteId, { limit: 100 })
+	stats = statsResult.dashboard
+	runs = runsResult.runs
 } catch (e) {
 	console.error("Failed to fetch runs:", e)
 }
@@ -20,7 +24,7 @@ try {
 <Base>
 	{runs.length > 0 ? (
 		<>
-			<StatHeader runs={runs} />
+			{stats && <StatHeader stats={stats} />}
 			<RunList client:load runs={runs} />
 		</>
 	) : (

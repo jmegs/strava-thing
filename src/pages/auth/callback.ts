@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro"
 import { env } from "cloudflare:workers"
-import { THIRTY_DAYS, MCP_TOKENS_KEY } from "../../lib/session"
+import { saveStravaTokens } from "../../lib/auth/strava-tokens"
 
 export const GET: APIRoute = async ({ request, session }) => {
 	const url = new URL(request.url)
@@ -47,12 +47,8 @@ export const GET: APIRoute = async ({ request, session }) => {
 			refreshToken: tokens.refresh_token,
 		}
 
-		session!.set("auth", authData)
-
-		// Also store tokens for MCP access (separate from user session)
-		await env.SESSIONS.put(MCP_TOKENS_KEY, JSON.stringify(authData), {
-			expirationTtl: THIRTY_DAYS,
-		})
+		session!.set("auth", { athleteId: authData.athleteId })
+		await saveStravaTokens(authData.athleteId, authData)
 
 		return new Response(null, {
 			status: 302,

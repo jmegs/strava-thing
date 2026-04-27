@@ -1,8 +1,5 @@
 export interface SessionData {
 	athleteId: number
-	accessToken: string
-	expiresAt: number
-	refreshToken: string
 }
 
 export interface WeatherData {

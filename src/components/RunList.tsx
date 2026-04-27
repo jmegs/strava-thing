@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect } from "react"
-import type { SummaryActivity } from "strava"
+import type { RunSummary } from "@/lib/format/runs"
 import { useKeyboard } from "../hooks/useKeyboard"
 import { RunListItem, type RunListItemHandle } from "./RunListItem"
 
 interface Props {
-	runs: SummaryActivity[]
+	runs: RunSummary[]
 }
 
 export function RunList({ runs }: Props) {

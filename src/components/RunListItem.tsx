@@ -1,6 +1,6 @@
 import { useImperativeHandle, useRef } from "react"
-import type { SummaryActivity } from "strava"
-import { mToMi, secToHMS, getTag } from "@/shared/format"
+import type { RunSummary } from "@/lib/format/runs"
+import { secToHMS } from "@/shared/format"
 import { useCopyRun } from "../hooks/useCopyRun"
 import { PolyLine } from "./PolyLine"
 
@@ -11,7 +11,7 @@ export interface RunListItemHandle {
 }
 
 interface Props {
-	run: SummaryActivity
+	run: RunSummary
 	selected: boolean
 	ref?: React.Ref<RunListItemHandle>
 }
@@ -31,13 +31,15 @@ export function RunListItem({ run, selected, ref }: Props) {
 		visit: viewFn,
 	}))
 
-	const dateStr = new Date(run.start_date_local).toISOString().split("T")[0]
-	const miles = mToMi(run.distance).toFixed(2) + "mi"
-	const movingTime = secToHMS(run.moving_time)
-	const hr = run.average_heartrate
-		? run.average_heartrate.toFixed(0) + "bpm"
+	const dateStr = run.date_local
+		? new Date(run.date_local).toISOString().split("T")[0]
 		: "—"
-	const tag = getTag(run.workout_type)
+	const miles = run.distance_mi.toFixed(2) + "mi"
+	const movingTime = secToHMS(run.moving_time_s)
+	const hr = run.avg_hr
+		? run.avg_hr.toFixed(0) + "bpm"
+		: "—"
+	const tag = run.workout_type_tag
 
 	return (
 		<li
@@ -46,7 +48,7 @@ export function RunListItem({ run, selected, ref }: Props) {
 		>
 			<div className="col-span-6 md:col-span-3 pr-2 flex items-center overflow-hidden">
 				<div className="hidden md:flex mr-6">
-					<PolyLine summary={run.map.summary_polyline} />
+					<PolyLine summary={run.summary_polyline} />
 				</div>
 
 				{selected && (

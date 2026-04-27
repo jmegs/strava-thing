@@ -1,14 +1,12 @@
 ---
-import type { SummaryActivity } from "strava"
-import { computeStats } from "../shared/stats"
+import type { RunStats } from "../shared/stats"
 import StatHeaderCard from "./StatHeaderCard.astro"
 
 interface Props {
-	runs: SummaryActivity[]
+	stats: RunStats
 }
 
-const { runs } = Astro.props
-const stats = computeStats(runs)
+const { stats } = Astro.props
 
 const milesCardLines = [
 	`${stats.miles_7d.toFixed(1)} mi`,

@@ -3,8 +3,11 @@ import { defineMiddleware } from "astro:middleware"
 export const onRequest = defineMiddleware(async (context, next) => {
 	const path = new URL(context.request.url).pathname
 
-	// Skip session loading for MCP (has its own auth) and auth routes
-	if (path === "/mcp" || path.startsWith("/auth/")) {
+	if (
+		path.startsWith("/auth/") ||
+		path.startsWith("/api/") ||
+		path === "/openapi.json"
+	) {
 		return next()
 	}
 

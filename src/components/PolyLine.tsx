@@ -2,7 +2,7 @@ import { useMemo } from "react"
 import polyline from "@mapbox/polyline"
 
 interface Props {
-	summary: string
+	summary?: string | null
 	size?: number
 	className?: string
 }
