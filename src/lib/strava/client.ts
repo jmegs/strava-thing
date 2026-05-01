@@ -1,5 +1,5 @@
-import { env } from "cloudflare:workers"
 import { Strava } from "strava"
+import { getEnv } from "@/lib/cf"
 import { loadStravaTokens, saveStravaTokens } from "@/lib/auth/strava-tokens"
 
 export async function createStravaClientForAthlete(athleteId: number) {
@@ -7,6 +7,8 @@ export async function createStravaClientForAthlete(athleteId: number) {
 	if (!auth) {
 		throw new Error(`No Strava tokens found for athlete ${athleteId}`)
 	}
+
+	const env = await getEnv()
 
 	return new Strava(
 		{

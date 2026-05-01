@@ -139,8 +139,8 @@ contrast against paper is not load-bearing.
 One family, one size, one weight. The system's personality is almost
 entirely carried by the typeface.
 
-- **Family:** `TX-02` (Berkeley Graphics) self-hosted as
-  `/TX-02.woff2`. It is a modern monospace with a warm, mechanical feel
+- **Family:** `TX-02` (Berkeley Graphics), loaded via `next/font/local`
+  from `public/fonts/TX-02.woff2`. It is a modern monospace with a warm, mechanical feel
   — slightly rounded terminals, even color on screen, and a strong
   all-caps lockup that suits short uppercase labels.
 - **Fallback:** `ui-monospace, SFMono-Regular, Menlo, monospace`.
@@ -272,7 +272,7 @@ The interaction vocabulary is part of the visual identity.
   vice versa — the app must be fully operable by either input method.
 - **Do** treat light and dark as equal. Use `color-scheme: light dark`
   and let the UA paint backgrounds; never hard-code white.
-- **Do** ship the mono webfont at `public/<font>.woff2` with
+- **Do** ship the mono webfont via `next/font/local` with
   `font-display: swap` and a monospace fallback so the layout is
   stable before the font loads.
 - **Don't** introduce rounded corners on tiles, buttons, or inputs.

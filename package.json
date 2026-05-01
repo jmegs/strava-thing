@@ -1,6 +1,6 @@
 {
 	"name": "strava-thing",
-	"version": "2.0.0",
+	"version": "3.0.0",
 	"description": "strava analysis dashboard",
 	"type": "module",
 	"keywords": [],
@@ -8,26 +8,25 @@
 	"license": "MIT",
 	"private": true,
 	"scripts": {
-		"dev": "astro dev",
-		"build": "astro build",
-		"preview": "astro preview",
-		"check": "astro check && tsc --noEmit",
-		"release": "bun run build && wrangler deploy"
+		"dev": "next dev",
+		"build": "next build",
+		"start": "next start",
+		"check": "tsc --noEmit",
+		"preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+		"release": "opennextjs-cloudflare build && opennextjs-cloudflare deploy"
 	},
 	"dependencies": {
-		"@astrojs/check": "^0.9.8",
-		"@astrojs/cloudflare": "^13",
-		"@astrojs/react": "^5",
 		"@mapbox/polyline": "^1.2.1",
-		"astro": "^6",
+		"@opennextjs/cloudflare": "^1.10.0",
 		"date-fns": "^4.1.0",
+		"next": "^16.2.2",
 		"react": "19.2.4",
 		"react-dom": "19.2.4",
 		"strava": "^3.1.0",
 		"zod": "^4.3.6"
 	},
 	"devDependencies": {
-		"@tailwindcss/vite": "^4.1.18",
+		"@tailwindcss/postcss": "^4.1.18",
 		"@types/mapbox__polyline": "^1.0.5",
 		"@types/node": "^25.6.0",
 		"@types/react": "19.2.10",
