@@ -1,5 +1,4 @@
-import type { AstroSession } from "astro"
-import type { SessionData } from "@/shared/types"
+import { getSession } from "@/lib/session"
 import {
 	isTokenExpired,
 	loadApiTokenByRawToken,
@@ -28,10 +27,7 @@ function getBearerToken(request: Request) {
 	return match?.[1] ?? ""
 }
 
-export async function requireApiAuth(
-	request: Request,
-	session: AstroSession | undefined,
-): Promise<ApiAuthResult> {
+export async function requireApiAuth(request: Request): Promise<ApiAuthResult> {
 	const bearerToken = getBearerToken(request)
 
 	if (bearerToken !== null) {
@@ -59,7 +55,7 @@ export async function requireApiAuth(
 		}
 	}
 
-	const auth = (await session?.get("auth")) as SessionData | null | undefined
+	const auth = await getSession()
 	if (!auth?.athleteId) {
 		return { ok: false, response: unauthorized() }
 	}
@@ -73,8 +69,8 @@ export async function requireApiAuth(
 	}
 }
 
-export async function requireSessionAuth(session: AstroSession | undefined) {
-	const auth = (await session?.get("auth")) as SessionData | null | undefined
+export async function requireSessionAuth() {
+	const auth = await getSession()
 	if (!auth?.athleteId) {
 		return { ok: false as const, response: unauthorized() }
 	}

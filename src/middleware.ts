@@ -1,24 +1,30 @@
-import { defineMiddleware } from "astro:middleware"
+import { NextResponse, type NextRequest } from "next/server"
 
-export const onRequest = defineMiddleware(async (context, next) => {
-	const path = new URL(context.request.url).pathname
+const SESSION_COOKIE = "session"
+
+export function middleware(request: NextRequest) {
+	const path = request.nextUrl.pathname
 
 	if (
 		path.startsWith("/auth/") ||
 		path.startsWith("/api/") ||
 		path === "/openapi.json"
 	) {
-		return next()
+		return NextResponse.next()
 	}
 
-	const auth = await context.session!.get("auth")
+	const authed = request.cookies.has(SESSION_COOKIE)
 
-	if (path === "/login" && auth) {
-		return context.redirect("/")
+	if (path === "/login" && authed) {
+		return NextResponse.redirect(new URL("/", request.url))
 	}
-	if (path !== "/login" && !auth) {
-		return context.redirect("/login")
+	if (path !== "/login" && !authed) {
+		return NextResponse.redirect(new URL("/login", request.url))
 	}
 
-	return next()
-})
+	return NextResponse.next()
+}
+
+export const config = {
+	matcher: ["/((?!_next/static|_next/image|favicon.ico|icon.svg|TX-02.woff2|.*\\..*).*)"],
+}

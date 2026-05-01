@@ -1,6 +1,6 @@
 # Strava Thing
 
-An Astro 6 Strava running dashboard deployed to Cloudflare Workers. The dashboard and AI clients use the same REST API data model.
+A Next.js Strava running dashboard deployed to Cloudflare Workers via [OpenNext](https://opennext.js.org/cloudflare). The dashboard and AI clients use the same REST API data model.
 
 ## Strava OAuth Setup
 
@@ -26,7 +26,7 @@ openssl rand -hex 32
 
 ## Cloudflare KV
 
-Astro sessions, Strava OAuth tokens, and first-party API token metadata are stored in the `SESSIONS` KV binding.
+Browser sessions, Strava OAuth tokens, and first-party API token metadata are stored in the `SESSIONS` KV binding.
 
 Create the namespace and copy the ID into `wrangler.jsonc`:
 
@@ -43,6 +43,12 @@ bun run dev
 ```
 
 Log in through `/auth/strava` to authorize Strava and seed the server-side Strava token store.
+
+To preview the deployed Workers bundle locally:
+
+```sh
+bun run preview
+```
 
 ## Deployment
 
@@ -115,5 +121,6 @@ The GPT Action schema intentionally excludes token-management routes.
 
 ## Further Reading
 
-- [Astro Documentation](https://docs.astro.build/)
+- [Next.js Documentation](https://nextjs.org/docs)
+- [OpenNext for Cloudflare](https://opennext.js.org/cloudflare)
 - [Cloudflare Workers Documentation](https://developers.cloudflare.com/workers)

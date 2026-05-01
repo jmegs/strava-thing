@@ -1,4 +1,4 @@
-import { env } from "cloudflare:workers"
+import { getEnv } from "@/lib/cf"
 
 const API_TOKEN_PREFIX = "st_run_live_"
 const API_TOKEN_KEY_PREFIX = "api-token:"
@@ -78,11 +78,13 @@ export async function loadApiTokenByRawToken(rawToken: string) {
 	if (!isApiTokenFormat(rawToken)) return null
 	const hash = await hashApiToken(rawToken)
 	const key = apiTokenKeyFromHash(hash)
+	const env = await getEnv()
 	const token = await env.SESSIONS.get<StoredApiToken>(key, "json")
 	return token ? { token, key } : null
 }
 
 export async function updateApiToken(key: string, token: StoredApiToken) {
+	const env = await getEnv()
 	await env.SESSIONS.put(key, JSON.stringify(token))
 }
 
@@ -103,11 +105,13 @@ export async function createApiToken(params: {
 		expiresAt: params.expiresAt ?? null,
 	}
 
+	const env = await getEnv()
 	await env.SESSIONS.put(apiTokenKeyFromHash(hash), JSON.stringify(token))
 	return { token, rawToken }
 }
 
 export async function listApiTokensForAthlete(athleteId: number) {
+	const env = await getEnv()
 	const tokens: StoredApiToken[] = []
 	let cursor: string | undefined
 
@@ -129,6 +133,7 @@ export async function deleteApiTokenForAthlete(
 	athleteId: number,
 	tokenId: string,
 ) {
+	const env = await getEnv()
 	let cursor: string | undefined
 
 	do {

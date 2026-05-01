@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useRef, useEffect } from "react"
 import type { RunSummary } from "@/lib/format/runs"
 import { useKeyboard } from "../hooks/useKeyboard"
@@ -21,7 +23,6 @@ export function RunList({ runs }: Props) {
 		"g g": () => setSelectedIdx(0),
 	})
 
-	// auto scroll on selection change
 	useEffect(() => {
 		if (selectedId != null) {
 			itemRefs.current.get(selectedId)?.scrollIntoView()

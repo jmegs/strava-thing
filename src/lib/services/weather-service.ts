@@ -1,6 +1,6 @@
-import { env } from "cloudflare:workers"
 import type { DetailedActivity } from "strava"
 import type { WeatherData } from "@/shared/types"
+import { getEnv } from "@/lib/cf"
 import { getWeather } from "@/lib/weather/open-meteo"
 
 function weatherKeyForRun(activityId: number) {
@@ -13,6 +13,7 @@ export async function getWeatherForActivity(
 	const [lat, lng] = activity.start_latlng ?? [null, null]
 	if (typeof lat !== "number" || typeof lng !== "number") return null
 
+	const env = await getEnv()
 	const cached = await env.SESSIONS.get<WeatherData>(
 		weatherKeyForRun(activity.id),
 		"json",

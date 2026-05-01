@@ -1,15 +1,19 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "strava-thing",
-	"main": "@astrojs/cloudflare/entrypoints/server",
+	"main": ".open-next/worker.js",
 	"compatibility_date": "2025-08-21",
-	"compatibility_flags": ["nodejs_compat"],
+	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
 	"observability": {
 		"enabled": true,
 	},
 	"routes": [
 		{ "pattern": "strava.john.zone", "custom_domain": true },
 	],
+	"assets": {
+		"directory": ".open-next/assets",
+		"binding": "ASSETS",
+	},
 	"kv_namespaces": [
 		{
 			"binding": "SESSIONS",
