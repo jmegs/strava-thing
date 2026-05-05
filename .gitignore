@@ -11,11 +11,13 @@ pnpm-debug.log*
 .env
 .dev.vars
 
-# Vite build output
-dist
+# Build output
+.next
+.open-next
 
 # TypeScript
 *.tsbuildinfo
+next-env.d.ts
 
 # IDEs and editors
 .vscode/
@@ -52,9 +54,6 @@ dist
 .env.development.local
 .env.test.local
 .env.production.local
-
-# Vite cache
-.vite
 
 # Coverage directory used by tools like istanbul
 coverage

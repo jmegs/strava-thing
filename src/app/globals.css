@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+@theme {
+	--font-mono: var(--font-tx-02), ui-monospace, monospace;
+}
+
+:root {
+	--li-scroll-margin: calc(50dvh + var(--spacing) * 14);
+	color-scheme: light dark;
+}
