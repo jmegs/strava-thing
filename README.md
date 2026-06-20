@@ -1,59 +1,58 @@
 # Strava Thing
 
-## Set up
-Create a new [Strava API application](https://www.strava.com/settings/api)
+A Next.js App Router dashboard for recent Strava running activity.
 
-Then in `.dev.vars`
+The app uses Next.js Cache Components and Partial Prerendering: the dashboard
+shell streams immediately, authenticated Strava data stays request-specific,
+and public weather lookups are shared in the Next.js cache.
+
+## Setup
+
+Create a [Strava API application](https://www.strava.com/settings/api), then
+Copy the committed environment template and fill in the values:
+
+```shell
+cp .env.example .env.local
 ```
-STRAVA_CLIENT_ID=<client_id>
-STRAVA_CLIENT_SECRET=<client_secret>
 
-// e.g. openssl rand -hex 32
-AUTH_SECRET_KEY=<random_string>
+Generate a suitable session encryption secret with:
+
+```shell
+openssl rand -hex 32
+```
+
+Configure the Strava application's authorization callback domain for your
+local or deployed hostname. The callback path is:
+
+```text
+/auth/strava/callback
 ```
 
 ## Development
-rwsdk emulates cloudflare in development automatically with vite environments
 
 ```shell
-pnpm run dev
+bun install
+bun run dev
 ```
 
-## Deploying
-1. Change the name of the worker and optionally the domain in `wrangler.jsonc`
+## Verification
 
-2. Create a KV namespace for sessions and update the `id` in `wrangler.jsonc`
 ```shell
-pnpm wrangler kv namespace create SESSIONS
+bun run check
+bun run build
 ```
 
-3. Add secrets to prod
+## Deploying to Vercel
+
+Import the repository into Vercel and add `STRAVA_CLIENT_ID`,
+`STRAVA_CLIENT_SECRET`, and `AUTH_SECRET_KEY` to the project environment
+variables. Vercel detects Next.js and Bun from `package.json` and `bun.lock`.
+
+After linking the project locally, Vercel-managed values can be pulled with:
+
 ```shell
-pnpm wrangler secrets put STRAVA_CLIENT_ID
-pnpm wrangler secrets put STRAVA_CLIENT_SECRET
-pnpm wrangler secrets put AUTH_SECRET_KEY
+vercel env pull .env.local
 ```
 
-4. Then deploy
-```shell
-pnpm run release
-```
-
-## Claude Connector (MCP)
-
-The app exposes an MCP endpoint at `/mcp` that lets Claude access your Strava running data.
-
-1. Log in to your deployed app at least once (this seeds the MCP auth tokens)
-2. In Claude, go to **Settings > Connectors > Add Connector**
-3. Enter your app's MCP URL: `https://<your-domain>/mcp`
-4. Ask Claude things like "What are my running stats this week?" or "Show me my last 5 runs"
-
-Available tools:
-- **get_stats** — weekly mileage, easy pace, easy HR, longest run (7d/28d)
-- **get_runs** — list of recent runs with distance, pace, HR, and workout tag
-- **get_run_detail** — full details for a specific run including splits, weather, laps, and notes
-
-## Further Reading
-
-- [RedwoodSDK Documentation](https://docs.rwsdk.com/)
-- [Cloudflare Workers Documentation](https://developers.cloudflare.com/workers)
+Add the production domain to the Strava API application settings before
+testing login.
