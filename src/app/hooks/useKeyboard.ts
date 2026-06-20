@@ -22,6 +22,16 @@ export function useKeyboard(bindings: Bindings) {
 		}
 
 		function handler(e: KeyboardEvent) {
+			const target = e.target
+			if (
+				target instanceof HTMLInputElement ||
+				target instanceof HTMLTextAreaElement ||
+				target instanceof HTMLSelectElement ||
+				(target instanceof HTMLElement && target.isContentEditable)
+			) {
+				return
+			}
+
 			const now = Date.now()
 			if (now - lastKeyTime > SEQ_TIMEOUT_MS) buffer = []
 			lastKeyTime = now

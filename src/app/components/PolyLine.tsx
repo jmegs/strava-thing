@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { memo, useMemo } from "react"
 import polyline from "@mapbox/polyline"
 
 interface Props {
@@ -9,7 +9,11 @@ interface Props {
 	className?: string
 }
 
-export function PolyLine({ summary, size = 32, className = "" }: Props) {
+export const PolyLine = memo(function PolyLine({
+	summary,
+	size = 32,
+	className = "",
+}: Props) {
 	const isTreadmill = !summary || summary.trim() === ""
 
 	const pathData = useMemo(() => {
@@ -81,4 +85,4 @@ export function PolyLine({ summary, size = 32, className = "" }: Props) {
 			<path d={isTreadmill ? treadmillPath : pathData} />
 		</svg>
 	)
-}
+})

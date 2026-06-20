@@ -1,3 +1,7 @@
+import "server-only"
+
+import { cacheLife } from "next/cache"
+
 import type { OpenMeteoResponse } from "@/shared/types"
 
 export const getWeather = async (params: {
@@ -5,6 +9,9 @@ export const getWeather = async (params: {
 	lng: number
 	isoUTC: string
 }) => {
+	"use cache"
+	cacheLife("weeks")
+
 	const when = new Date(params.isoUTC)
 	const y = when.getUTCFullYear()
 	const m = String(when.getUTCMonth() + 1).padStart(2, "0")

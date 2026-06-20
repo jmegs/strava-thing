@@ -19,3 +19,19 @@ export interface OpenMeteoResponse {
 		wind_speed_10m: number[]
 	}
 }
+
+export interface RunSummary {
+	id: number
+	name: string
+	startDate: string
+	distance: number
+	movingTime: number
+	averageHeartrate: number | null
+	workoutType: number | null
+	summaryPolyline: string
+}
+
+export interface RunPage {
+	runs: RunSummary[]
+	nextBefore: number | null
+}

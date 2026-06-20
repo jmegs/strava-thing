@@ -1,16 +1,19 @@
-import { useState, useEffect, useRef } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 type CopyStatus = "idle" | "copying" | "copied"
 
 export function useCopyRun() {
 	const [status, setStatus] = useState<CopyStatus>("idle")
-	const timerRef = useRef<ReturnType<typeof setTimeout>>()
+	const [activeId, setActiveId] = useState<number | null>(null)
+	const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
 	useEffect(() => {
 		return () => clearTimeout(timerRef.current)
 	}, [])
 
-	const copyRun = async (id: number) => {
+	const copyRun = useCallback(async (id: number) => {
+		clearTimeout(timerRef.current)
+		setActiveId(id)
 		setStatus("copying")
 
 		try {
@@ -25,9 +28,12 @@ export function useCopyRun() {
 			console.error("Failed to copy: ", e)
 		} finally {
 			setStatus("copied")
-			timerRef.current = setTimeout(() => setStatus("idle"), 1000)
+			timerRef.current = setTimeout(() => {
+				setStatus("idle")
+				setActiveId(null)
+			}, 1000)
 		}
-	}
+	}, [])
 
-	return { copying: status === "copying", copied: status === "copied", copyRun }
+	return { activeId, status, copyRun }
 }

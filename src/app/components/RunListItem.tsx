@@ -1,59 +1,49 @@
 "use client"
 
-import { useImperativeHandle, useRef } from "react"
-import type { SummaryActivity } from "strava"
+import { memo } from "react"
 import { mToMi, secToHMS, getTag } from "@/shared/format"
-import { useCopyRun } from "@/app/hooks/useCopyRun"
+import type { RunSummary } from "@/shared/types"
 import { PolyLine } from "./PolyLine"
 
-export interface RunListItemHandle {
-	copy: () => void
-	scrollIntoView: () => void
-	visit: () => void
-}
-
 interface Props {
-	run: SummaryActivity
+	run: RunSummary
 	selected: boolean
-	ref?: React.Ref<RunListItemHandle>
+	copyStatus: "idle" | "copying" | "copied"
+	onCopy: (id: number) => Promise<void>
+	onVisit: (id: number) => void
 }
 
-export function RunListItem({ run, selected, ref }: Props) {
-	const liRef = useRef<HTMLLIElement>(null)
-	const { copying, copied, copyRun } = useCopyRun()
-
-	const copyFn = () => copyRun(run.id)
-	const scrollFn = () => liRef.current?.scrollIntoView({ block: "nearest" })
-	const stravaUrl = `https://www.strava.com/activities/${run.id}`
-	const viewFn = () => window.open(stravaUrl, "_blank")
-
-	useImperativeHandle(ref, () => ({
-		copy: copyFn,
-		scrollIntoView: scrollFn,
-		visit: viewFn,
-	}))
-
-	const dateStr = new Date(run.start_date_local).toISOString().split("T")[0]
+export const RunListItem = memo(function RunListItem({
+	run,
+	selected,
+	copyStatus,
+	onCopy,
+	onVisit,
+}: Props) {
+	const dateStr = new Date(run.startDate).toISOString().split("T")[0]
 	const miles = mToMi(run.distance).toFixed(2) + "mi"
-	const movingTime = secToHMS(run.moving_time)
-	const hr = run.average_heartrate
-		? run.average_heartrate.toFixed(0) + "bpm"
+	const movingTime = secToHMS(run.movingTime)
+	const hr = run.averageHeartrate
+		? run.averageHeartrate.toFixed(0) + "bpm"
 		: "—"
-	const tag = getTag(run.workout_type)
+	const tag = getTag(run.workoutType)
 
 	return (
 		<li
-			ref={liRef}
+			data-run-id={run.id}
 			className="grid grid-cols-12 gap-x-2 px-2 md:px-8 py-1 items-center scroll-mt-(--li-scroll-margin)"
 		>
 			<div className="col-span-6 md:col-span-3 pr-2 flex items-center overflow-hidden">
 				<div className="hidden md:flex mr-6">
-					<PolyLine summary={run.map.summary_polyline} />
+					<PolyLine summary={run.summaryPolyline} />
 				</div>
 
-				{selected && (
-					<span className="h-2 w-2 bg-blue-500 dark:bg-amber-500 rounded-full mr-2 max-sm:hidden" />
-				)}
+				<span
+					aria-hidden="true"
+					className={`h-2 w-2 shrink-0 bg-blue-500 dark:bg-amber-500 rounded-full mr-2 max-sm:hidden ${
+						selected ? "opacity-100" : "opacity-0"
+					}`}
+				/>
 
 				<span className="truncate mr-2">{run.name}</span>
 				{tag && <span>[{tag}]</span>}
@@ -70,7 +60,7 @@ export function RunListItem({ run, selected, ref }: Props) {
 			<div className="col-span-2 md:col-span-1 flex gap-2 justify-end">
 				<button
 					type="button"
-					onClick={viewFn}
+					onClick={() => onVisit(run.id)}
 					className="px-1 py-0.5 inline-grid place-items-center border tracking-wide uppercase disabled:opacity-50 hover:opacity-50 cursor-pointer"
 				>
 					<span className="w-[3ch]">VST</span>
@@ -78,14 +68,18 @@ export function RunListItem({ run, selected, ref }: Props) {
 				<button
 					type="button"
 					className="px-1 py-0.5 inline-grid place-items-center border tracking-wide uppercase disabled:opacity-50 hover:opacity-50 cursor-pointer"
-					disabled={copying}
-					onClick={copyFn}
+					disabled={copyStatus === "copying"}
+					onClick={() => void onCopy(run.id)}
 				>
 					<span className="w-[3ch]">
-						{copying ? "..." : copied ? "√" : "CPY"}
+						{copyStatus === "copying"
+							? "..."
+							: copyStatus === "copied"
+								? "√"
+								: "CPY"}
 					</span>
 				</button>
 			</div>
 		</li>
 	)
-}
+})

@@ -15,19 +15,27 @@ export function AppSkeleton() {
 
 			<ul className="border-t border-t-neutral-200 divide-y divide-neutral-200 animate-pulse">
 				{Array.from({ length: 20 }).map((_, i) => (
-					<li
-						key={i}
-						className="grid grid-cols-12 gap-x-2 px-2 md:px-8 py-2 md:py-4 items-center"
-					>
-						<div className="col-span-6 md:col-span-3 pr-2 flex items-center overflow-hidden h-3 bg-neutral-100" />
-						<div className="hidden md:flex col-span-2 h-3 bg-neutral-100" />
-						<div className="col-span-2 flex h-3 bg-neutral-100" />
-						<div className="flex col-span-2 h-3 bg-neutral-100" />
-						<div className="hidden md:flex col-span-2 h-3 bg-neutral-100" />
-						<div className="col-span-2 md:col-span-1 flex justify-end h-3 bg-neutral-100" />
-					</li>
+					<RunListSkeletonItem key={i} />
 				))}
 			</ul>
 		</main>
+	)
+}
+
+export function RunListSkeletonItem({ animate = false }: { animate?: boolean }) {
+	return (
+		<li
+			aria-hidden="true"
+			className={`grid grid-cols-12 gap-x-2 px-2 md:px-8 py-2 md:py-4 items-center ${
+				animate ? "animate-pulse" : ""
+			}`}
+		>
+			<div className="col-span-6 md:col-span-3 pr-2 flex items-center overflow-hidden h-3 bg-neutral-100" />
+			<div className="hidden md:flex col-span-2 h-3 bg-neutral-100" />
+			<div className="col-span-2 flex h-3 bg-neutral-100" />
+			<div className="flex col-span-2 h-3 bg-neutral-100" />
+			<div className="hidden md:flex col-span-2 h-3 bg-neutral-100" />
+			<div className="col-span-2 md:col-span-1 flex justify-end h-3 bg-neutral-100" />
+		</li>
 	)
 }
