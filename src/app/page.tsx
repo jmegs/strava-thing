@@ -1,5 +1,6 @@
 import { Suspense } from "react"
 import { redirect } from "next/navigation"
+import { connection } from "next/server"
 
 import { AppSkeleton } from "@/app/components/AppSkeleton"
 import { RunList } from "@/app/components/RunList"
@@ -17,6 +18,8 @@ export default function HomePage() {
 }
 
 async function Dashboard() {
+	await connection()
+
 	const session = await readSession()
 
 	if (!session) {

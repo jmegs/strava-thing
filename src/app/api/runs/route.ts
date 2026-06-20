@@ -1,4 +1,4 @@
-import { type NextRequest, NextResponse } from "next/server"
+import { connection, type NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 
 import { fetchOlderRuns } from "@/server/runs"
@@ -17,6 +17,8 @@ const querySchema = z.object({
 })
 
 export async function GET(request: NextRequest) {
+	await connection()
+
 	let session = await readSession()
 	if (!session) {
 		return Response.json({ error: "Unauthorized" }, { status: 401 })

@@ -13,7 +13,7 @@ export async function fetchInitialActivities(strava: Strava) {
 		(Date.now() - STATS_WINDOW_DAYS * 24 * 60 * 60 * 1000) / 1000,
 	)
 	const activities = await fetchAllActivitiesAfter(strava, after)
-	const runActivities = activities.filter((activity) => activity.type === "Run")
+	const runActivities = activities.filter(isRunActivity)
 
 	return {
 		runActivities,
@@ -33,9 +33,7 @@ export async function fetchOlderRuns(
 	const lastActivity = activities.at(-1)
 
 	return {
-		runs: toRunSummaries(
-			activities.filter((activity) => activity.type === "Run"),
-		),
+		runs: toRunSummaries(activities.filter(isRunActivity)),
 		nextBefore:
 			activities.length === PAGE_SIZE && lastActivity
 				? Math.floor(new Date(lastActivity.start_date).getTime() / 1000)
@@ -57,8 +55,24 @@ async function fetchAllActivitiesAfter(strava: Strava, after: number) {
 	}
 }
 
+function isRunActivity(activity: SummaryActivity) {
+	const sportType = (activity as SummaryActivity & { sport_type?: string })
+		.sport_type
+	return (
+		activity.type === "Run" ||
+		activity.type === "VirtualRun" ||
+		sportType === "Run" ||
+		sportType === "TrailRun" ||
+		sportType === "VirtualRun"
+	)
+}
+
 function toRunSummaries(activities: SummaryActivity[]): RunSummary[] {
 	return activities
+		.toSorted(
+			(a, b) =>
+				new Date(b.start_date).getTime() - new Date(a.start_date).getTime(),
+		)
 		.map((activity) => ({
 			id: activity.id,
 			name: activity.name,
